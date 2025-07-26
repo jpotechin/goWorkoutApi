@@ -144,9 +144,8 @@ func (s *PostgresUserStore) UpdateUser(user *User) error {
 	return nil
 }
 
-func (s *PostgresTokenStore) GetUserToken(scope, plainTextPassword string) (*User, error) {
+func (s *PostgresUserStore) GetUserToken(scope, plainTextPassword string) (*User, error) {
 	tokenHash := sha256.Sum256(([]byte(plainTextPassword)))
-
 	query := `
 	SELECT u.id, u.username, u.email, u.password_hash, u.bio, u.created_at, u.updated_at
 	FROM users u
@@ -157,9 +156,11 @@ func (s *PostgresTokenStore) GetUserToken(scope, plainTextPassword string) (*Use
 	user := &User{
 		PasswordHash: password{},
 	}
+
 	err := s.db.QueryRow(query, tokenHash[:], scope, time.Now()).Scan(
 		&user.ID,
 		&user.Username,
+		&user.Email,
 		&user.PasswordHash.hash,
 		&user.Bio,
 		&user.CreatedAt,
