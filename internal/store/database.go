@@ -4,13 +4,31 @@ import (
 	"database/sql"
 	"fmt"
 	"io/fs"
+	"log"
+	"os"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/joho/godotenv"
 	"github.com/pressly/goose/v3"
 )
 
 func Open() (*sql.DB, error) {
-	db, err := sql.Open("pgx", "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable")
+
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	host := os.Getenv("POSTGRES_HOST")
+	port := os.Getenv("POSTGRES_PORT")
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	db, err := sql.Open("pgx", connStr)
 
 	if err != nil {
 		return nil, fmt.Errorf("db: open %w", err)
