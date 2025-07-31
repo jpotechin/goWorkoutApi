@@ -4,3 +4,4 @@
 ./database/
 tmp
 post_notes.txt
+.env
